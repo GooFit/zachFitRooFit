@@ -41,7 +41,7 @@ void zachFit_roofit_compute(int fitType = 0, int ncpu=0) {
   if(ncpu==0)
       ncpu = std::thread::hardware_concurrency();
   if(ncpu==0)
-      ncpu == 1;
+      ncpu = 1;
 
   std::cout << rang::fg::magenta << "Number of threads: " << ncpu << rang::style::reset << std::endl; 
 
