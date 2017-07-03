@@ -17,16 +17,6 @@ if(NOT "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
         )
 endif()
 
-function(root_add_dictionary OUTNAME)
-    add_custom_command(
-        OUTPUT  "${CMAKE_CURRENT_BINARY_DIR}/${OUTNAME}.cxx"
-        COMMAND "${ROOTCINT_EXECUTABLE}" -v4 -f "${CMAKE_CURRENT_BINARY_DIR}/${OUTNAME}.cxx" ${ARGN}
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        DEPENDS ${ARN}
-        )
-    add_library(${OUTNAME} STATIC "${CMAKE_CURRENT_BINARY_DIR}/${OUTNAME}.cxx")
-    target_link_libraries(${OUTNAME} PUBLIC ROOT::ROOT)
-endfunction()
 
 include_directories(.)
 
