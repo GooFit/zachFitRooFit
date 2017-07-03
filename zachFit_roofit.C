@@ -28,12 +28,22 @@
 #include "RooArgusGenBG.h"
 #include "RooRBWGaussConv.h"
 
+#include <CLI11.hpp>
+#include <rang.hpp>
+#include <thread>
+
 using namespace RooFit ;
 
-int fitType = 0; // 0 for Kpi, 1 for K3pi
-
-void zachFit_roofit_compute() {
+// 0 for Kpi, 1 for K3pi
+void zachFit_roofit_compute(int fitType = 0, int ncpu=0) {
   TString MC_TXTNAME,RD_TXTNAME,plot_name;
+
+  if(ncpu==0)
+      ncpu = std::thread::hardware_concurrency();
+  if(ncpu==0)
+      ncpu == 1;
+
+  std::cout << rang::fg::magenta << "Number of threads: " << ncpu << rang::style::reset << std::endl; 
 
   if(fitType == 0){
     MC_TXTNAME = "DstarWidthAnalysis_Data/DstarWidth_D0ToKpi_deltaM_MC.txt";
@@ -136,18 +146,18 @@ void zachFit_roofit_compute() {
 
   RooAddPdf signal("signal", "", RooArgList(mcargus, convo_1, convo_2, convo_3), RooArgList(nmcarg, nmcg1, nmcg2, nmcg3));
   RooAddPdf RD_total("RD_total", "", RooArgList(rdargus, signal), RooArgList(nbkg,nsig));
-  RooNLLVar* rdnll = new RooNLLVar("rdnll", "",RD_total,rddhist, RooFit::NumCPU(2), RooFit::Extended());
+  RooNLLVar* rdnll = new RooNLLVar("rdnll", "",RD_total,rddhist, RooFit::NumCPU(ncpu), RooFit::Extended());
   RooMinuit* rdMinuit = new RooMinuit(*rdnll);
   TStopwatch _timer2;
-  std::cout<<"Starting fit timer"<<std::endl;
-  _timer2.Start();
+  std::cout << rang::fg::magenta << "Starting fit timer" << rang::fg::green << std::endl;
+  _timer2.Start(); 
 
   rdMinuit->setStrategy(1);
   rdMinuit->hesse();
   rdMinuit->migrad();
   rdMinuit->hesse();
 
-  std::cout<<"Time at the end of fit = "<<_timer2.RealTime() << " (real) " << _timer2.CpuTime() << " (cpu) seconds"<<std::endl;
+  std::cout << rang::fg::magenta << "Time at the end of fit = "<<_timer2.RealTime() << " (real) " << _timer2.CpuTime() << " (cpu) seconds" << rang::fg::magenta << std::endl;
 
   TStyle* _gStyle = new TStyle();
   
@@ -192,7 +202,40 @@ void zachFit_roofit() {
     zachFit_roofit_compute();
 }
 
+#ifndef __CLING__
+#include <csignal>
+
+void signal_handler(int s) {
+    std::cout << std::endl << rang::style::reset << rang::fg::red << rang::style::bold;
+    std::cout << "zachFit: Control-C detected, exiting..." << rang::style::reset << std::endl;
+    std::exit(1); // will call the correct exit func, no unwinding of the stack though
+}
+
 /// Called from command line
 int main(int argc, char** argv) {
-    zachFit_roofit_compute();
+    // Nice exit
+    std::atexit([](){std::cout << rang::style::reset;});
+
+    // Nice Control-C
+    struct sigaction sigIntHandler;
+    sigIntHandler.sa_handler = signal_handler;
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_flags = 0;
+    sigaction(SIGINT, &sigIntHandler, nullptr);
+
+    CLI::App app{"zachFit"};
+
+    int fit_type = 0, ncpu=0;
+    app.add_option("-f,--fit-type,fit-type", fit_type, "0 for Kpi, 1 for K3pi", true);
+    app.add_option("-n,--numcpu,ncpu", ncpu, "Number of CPUs to use", true);
+
+    try {
+        app.parse(argc, argv);
+    } catch (const CLI::ParseError &e) {
+        std::cout << (e.get_exit_code()==0 ? rang::fg::blue : rang::fg::red);
+        return app.exit(e);
+    }
+
+    zachFit_roofit_compute(fit_type, ncpu);
 }
+#endif
