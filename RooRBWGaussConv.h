@@ -21,7 +21,7 @@ public:
 
   RooRBWGaussConv(const RooRBWGaussConv& other,const char* name=0) ;
   virtual TObject* clone(const char* newname) const { return new RooRBWGaussConv(*this,newname); }
-  inline virtual ~RooRBWGaussConv() { }
+  virtual ~RooRBWGaussConv() { }
   
   static double D0MASS;
   static double MPI;
@@ -44,9 +44,7 @@ protected:
   Double_t evaluate() const ;
   Double_t evalP (double mass) const;
 
-  
-private:
-  ClassDef(RooRBWGaussConv,0); // Argus background shape generic PDF (for lower and upper thresholds)
+  ClassDef(RooRBWGaussConv,1); // Argus background shape generic PDF (for lower and upper thresholds)
 };
 
 #endif

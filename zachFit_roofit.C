@@ -6,7 +6,7 @@
 //
 /////////////////////////////////////////////////////////////////////////
 
-#ifndef __CINT__
+#ifndef __CLING__
 #include "RooGlobalFunc.h"
 #endif
 #include "RooRealVar.h"
@@ -32,11 +32,7 @@ using namespace RooFit ;
 
 int fitType = 0; // 0 for Kpi, 1 for K3pi
 
-void zachFit_roofit()
-{   
-  gROOT->ProcessLineSync(".L RooArgusGenBG.cxx+") ;
-  gROOT->ProcessLineSync(".L RooRBWGaussConv.cxx+") ;
-
+void zachFit_roofit_compute() {
   TString MC_TXTNAME,RD_TXTNAME,plot_name;
 
   if(fitType == 0){
@@ -151,7 +147,7 @@ void zachFit_roofit()
   rdMinuit->migrad();
   rdMinuit->hesse();
 
-  std::cout<<"Time at the end of fit = "<<_timer2.RealTime() << " (real) " << _timer2.CPUTime() << " (cpu) seconds"<<std::endl;
+  std::cout<<"Time at the end of fit = "<<_timer2.RealTime() << " (real) " << _timer2.CpuTime() << " (cpu) seconds"<<std::endl;
 
   TStyle* _gStyle = new TStyle();
   
@@ -187,4 +183,16 @@ void zachFit_roofit()
   mframe->GetYaxis()->SetLabelSize(0.03);
   canvas->SaveAs("zachsFit_"+plot_name+"_roofit_semilog.pdf");
 
+}
+
+/// Called from ROOT
+void zachFit_roofit() {   
+    gROOT->ProcessLineSync(".L RooArgusGenBG.cxx+") ;
+    gROOT->ProcessLineSync(".L RooRBWGaussConv.cxx+") ;
+    zachFit_roofit_compute();
+}
+
+/// Called from command line
+int main(int argc, char** argv) {
+    zachFit_roofit_compute();
 }

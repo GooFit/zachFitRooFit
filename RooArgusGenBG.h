@@ -35,7 +35,7 @@ public:
 
   RooArgusGenBG(const RooArgusGenBG& other,const char* name=0) ;
   virtual TObject* clone(const char* newname) const { return new RooArgusGenBG(*this,newname); }
-  inline virtual ~RooArgusGenBG() { }
+  virtual ~RooArgusGenBG() = default;
 
   //Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
   //Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
@@ -49,9 +49,9 @@ protected:
   ThresholdType thresholdType;
 
   Double_t evaluate() const ;
-
-private:
-  ClassDef(RooArgusGenBG,0); // Argus background shape generic PDF (for lower and upper thresholds)
+  
+  // Argus background shape generic PDF (for lower and upper thresholds)
+  ClassDef(RooArgusGenBG,1);
 };
 
 #endif
