@@ -2,6 +2,19 @@
 
 There is some extremely basic visualization code to look at the final fit. I used a simple integer number "fitType" to switch between Kpi and K3pi.
 
+To run the program version:
+```bash
+mkdir build
+cd build
+cmake ..
+make
+```
+
+Then, run it:
+```
+./zachFit_roofit -h
+```
+
 First we need to compile and link the classes we wrote ourselves and then can run the macro:
 ```
 root>.L RooArgusGenBG.cxx+
