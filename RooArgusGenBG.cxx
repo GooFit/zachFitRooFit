@@ -16,15 +16,14 @@
 // root> .L RooArgusGenBG.cxx+
 //
 
-
 #include "RooFit.h"
 
 #include "Riostream.h"
 #include <math.h>
 
-#include "RooRealVar.h"
-#include "RooRealConstant.h"
 #include "RooMath.h"
+#include "RooRealConstant.h"
+#include "RooRealVar.h"
 #include "TMath.h"
 #include "TRegexp.h"
 
@@ -32,70 +31,75 @@
 
 ClassImp(RooArgusGenBG)
 
-RooArgusGenBG::RooArgusGenBG(const char *name, const char *title,
-			     RooAbsReal& _m, RooAbsReal& _m0,
-			     RooAbsReal& _c, ThresholdType _thresholdType) :
-RooAbsPdf(name, title),
-  m("m","Mass",this,_m),
-  m0("m0","Resonance mass",this,_m0),
-  c("c","Slope parameter",this,_c),
-  c2("c2","Slope parameter2",this,(RooRealVar&)RooRealConstant::value(0.)),
-  p("p","Power",this,(RooRealVar&)RooRealConstant::value(0.5)),
-  thresholdType(_thresholdType)
-{
-}
+    RooArgusGenBG::RooArgusGenBG(const char *name,
+                                 const char *title,
+                                 RooAbsReal &_m,
+                                 RooAbsReal &_m0,
+                                 RooAbsReal &_c,
+                                 ThresholdType _thresholdType)
+    : RooAbsPdf(name, title)
+    , m("m", "Mass", this, _m)
+    , m0("m0", "Resonance mass", this, _m0)
+    , c("c", "Slope parameter", this, _c)
+    , c2("c2", "Slope parameter2", this, (RooRealVar &)RooRealConstant::value(0.))
+    , p("p", "Power", this, (RooRealVar &)RooRealConstant::value(0.5))
+    , thresholdType(_thresholdType) {}
 
-RooArgusGenBG::RooArgusGenBG(const char *name, const char *title,
-			     RooAbsReal& _m, RooAbsReal& _m0, RooAbsReal& _c,
-			     RooAbsReal& _p, ThresholdType _thresholdType) :
-  RooAbsPdf(name, title),
-  m("m","Mass",this,_m),
-  m0("m0","Resonance mass",this,_m0),
-  c("c","Slope parameter",this,_c),
-  c2("c2","Slope parameter2",this,(RooRealVar&)RooRealConstant::value(0.)),
-  p("p","Power",this,_p),
-  thresholdType(_thresholdType)
-{
-}
-RooArgusGenBG::RooArgusGenBG(const char *name, const char *title,
-			     RooAbsReal& _m, RooAbsReal& _m0, RooAbsReal& _c,
-			     RooAbsReal& _c2, RooAbsReal& _p, ThresholdType _thresholdType) :
-  RooAbsPdf(name, title),
-  m("m","Mass",this,_m),
-  m0("m0","Resonance mass",this,_m0),
-  c("c","Slope parameter",this,_c),
-  c2("c2","Slope parameter2",this,_c2),
-  p("p","Power",this,_p),
-  thresholdType(_thresholdType)
-{
-}
+RooArgusGenBG::RooArgusGenBG(const char *name,
+                             const char *title,
+                             RooAbsReal &_m,
+                             RooAbsReal &_m0,
+                             RooAbsReal &_c,
+                             RooAbsReal &_p,
+                             ThresholdType _thresholdType)
+    : RooAbsPdf(name, title)
+    , m("m", "Mass", this, _m)
+    , m0("m0", "Resonance mass", this, _m0)
+    , c("c", "Slope parameter", this, _c)
+    , c2("c2", "Slope parameter2", this, (RooRealVar &)RooRealConstant::value(0.))
+    , p("p", "Power", this, _p)
+    , thresholdType(_thresholdType) {}
+RooArgusGenBG::RooArgusGenBG(const char *name,
+                             const char *title,
+                             RooAbsReal &_m,
+                             RooAbsReal &_m0,
+                             RooAbsReal &_c,
+                             RooAbsReal &_c2,
+                             RooAbsReal &_p,
+                             ThresholdType _thresholdType)
+    : RooAbsPdf(name, title)
+    , m("m", "Mass", this, _m)
+    , m0("m0", "Resonance mass", this, _m0)
+    , c("c", "Slope parameter", this, _c)
+    , c2("c2", "Slope parameter2", this, _c2)
+    , p("p", "Power", this, _p)
+    , thresholdType(_thresholdType) {}
 
-RooArgusGenBG::RooArgusGenBG(const RooArgusGenBG& other, const char* name) :
-  RooAbsPdf(other,name),
-  m("m",this,other.m),
-  m0("m0",this,other.m0),
-  c("c",this,other.c),
-  c2("c2",this,other.c2),
-  p("p",this,other.p),
-  thresholdType(other.thresholdType)
-{
-}
+RooArgusGenBG::RooArgusGenBG(const RooArgusGenBG &other, const char *name)
+    : RooAbsPdf(other, name)
+    , m("m", this, other.m)
+    , m0("m0", this, other.m0)
+    , c("c", this, other.c)
+    , c2("c2", this, other.c2)
+    , p("p", this, other.p)
+    , thresholdType(other.thresholdType) {}
 Double_t RooArgusGenBG::evaluate() const {
-  if(thresholdType != BrianLowerThreshold) {
-    Double_t t= m/m0;
-    if ( (t >= 1 && thresholdType==UpperThreshold) || (t <= 1 && thresholdType==LowerThreshold) ) return 0;
-    Double_t u = thresholdType==UpperThreshold? 1 - t*t : t*t - 1;
-    //cout << "c = " << c << " result = " << m*TMath::Power(u,p)*exp(c*u) << endl ;
-    assert(u>=0);
-    return m*TMath::Power(u,p)*exp(c*u) ;
-  }
-  else{
-    //u^a e^{-b*x+c*x^2)
-    
-    Double_t t= m/m0;
-    if (t <= 1) return 0;
-    Double_t u = t*t - 1;
-    assert(u>=0);
-    return m*TMath::Power(u,p)*exp(c*u + c2*u*u) ;
-  }
+    if(thresholdType != BrianLowerThreshold) {
+        Double_t t = m / m0;
+        if((t >= 1 && thresholdType == UpperThreshold) || (t <= 1 && thresholdType == LowerThreshold))
+            return 0;
+        Double_t u = thresholdType == UpperThreshold ? 1 - t * t : t * t - 1;
+        // cout << "c = " << c << " result = " << m*TMath::Power(u,p)*exp(c*u) << endl ;
+        assert(u >= 0);
+        return m * TMath::Power(u, p) * exp(c * u);
+    } else {
+        // u^a e^{-b*x+c*x^2)
+
+        Double_t t = m / m0;
+        if(t <= 1)
+            return 0;
+        Double_t u = t * t - 1;
+        assert(u >= 0);
+        return m * TMath::Power(u, p) * exp(c * u + c2 * u * u);
+    }
 }
