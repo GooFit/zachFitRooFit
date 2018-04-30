@@ -1,9 +1,9 @@
 //////////////////////////////////////////////////////////////////////////
-//
+// ROOT version:
 // root>.L RooArgusGenBG.cxx+         // Compile and load created class
 // root>.L RooRBWGaussConv.cxx+       // Compile and load created class
 // root>.x zachFit_roofit.C           // run compiled code
-//
+// Or compile with cmake.
 /////////////////////////////////////////////////////////////////////////
 
 #ifndef __CLING__
