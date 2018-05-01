@@ -1,4 +1,4 @@
-*build/*
+*build*/*
 *.d
 *.so
 *.pcm
